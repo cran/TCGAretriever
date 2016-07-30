@@ -23,8 +23,18 @@ Damiano Fantini
 }
 \examples{
 # Protein Expression Only
-get_protein_data("blca_tcga_sequenced", FALSE)[1:20,1:7]
+blca_protein <- get_protein_data("blca_tcga_sequenced", FALSE)
+if (nrow(blca_protein) > 10 & ncol(blca_protein) > 8) {
+  blca_protein[1:8,1:8]
+} else {
+message("Server may be down, please try again later...")
+}
 #
 # Example including Antibody Information
-get_protein_data("blca_tcga_sequenced", TRUE)[1:20,1:5]
+blca_protein <- get_protein_data("blca_tcga_sequenced", TRUE)
+if (nrow(blca_protein) > 10 & ncol(blca_protein) > 8) {
+  blca_protein[1:8,1:8]
+} else {
+message("Server may be down, please try again later...")
+}
 }

@@ -5,6 +5,7 @@ function(case_id = NULL, gprofile_id = NULL, glist = NULL){
     my_url <- paste(my_url, "&case_set_id=", case_id, sep = "")
     my_url <- paste(my_url, "&genetic_profile_id=", paste(gprofile_id, collapse = "+"), sep = "")
     my_url <- paste(my_url, "&gene_list=", paste(glist, collapse = "+"), sep = "")
+    #return(GET(my_url))    
     return(basic_tcga_query(my_url))
   } else {
     message("Missing cancer study ID / genetic profile ID / gene list")

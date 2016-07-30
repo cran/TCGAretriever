@@ -20,5 +20,7 @@ Damiano Fantini
 \examples{
 all_studies <- get_cancer_studies()
 message(paste("There are", nrow(all_studies), "studies currently available..."))
-head(all_studies[,1:2])
+if(ncol(all_studies) >= 2) {
+  head(all_studies[,1:2])
+}
 }

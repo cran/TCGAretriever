@@ -4,7 +4,7 @@ function(case_id = NULL, array_info = TRUE) {
     my_url <- "http://www.cbioportal.org/webservice.do?cmd=getProteinArrayData"
     my_url <- paste(my_url, "&case_set_id=", case_id, sep = "")
     if(array_info == TRUE){
-      array_ctrl <- 1
+      array_ctrl <- 1  
     } else {
       array_ctrl <- 0
     }

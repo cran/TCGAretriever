@@ -23,6 +23,18 @@ http://www.biotechworld.it/bioinf/2016/07/11/tcga-data-via-tcgaretriever/
 Damiano Fantini
 }
 \examples{
-get_protein_info("blca_tcga", glist = c("TP53", "PTEN", "E2F1", "AKT1"))
-get_protein_info("blca_tcga", "phosphorilation", c("TP53", "PTEN", "E2F1", "AKT1"))
+info1 <- get_protein_info("blca_tcga", glist = c("TP53", "PTEN", "E2F1", "AKT1"))
+if (nrow(info1) > 0) {
+  message("Total protein levels information")
+  info1
+} else {
+message("Server may be down, please try again later...")
+}
+info2 <- get_protein_info("blca_tcga", "phosphorilation", c("TP53", "PTEN", "E2F1", "AKT1"))
+if (nrow(info2) > 0) {
+  message("Phospho-protein levels information")
+  info2
+} else {
+message("Server may be down, please try again later...")
+}
 }

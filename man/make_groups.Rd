@@ -1,0 +1,39 @@
+\name{make_groups}
+\alias{make_groups}
+\title{
+Split Numeric Vectors in Groups}
+\description{
+Assign each element of a numeric vector to a group. Grouping is based on ranks: numeric values are sorted and then split in 2 or more groups. Values may be sorted in an increasing or decreasing fashion. The vector is returned in the original order. Labels may be assigned to each groug.
+}
+\usage{
+make_groups(num_vector, groups, group_labels = NULL, desc = FALSE)
+}
+\arguments{
+  \item{num_vector}{
+numeric vector. It includes the values to be assigned to the different groups
+}
+  \item{groups}{
+Integer. The number of groups that will be 
+}
+  \item{group_labels}{
+Character vector. Labels for each group. Note that the length of group_labels has to be equal to the number of groups.
+}
+  \item{desc}{
+Logical. If TRUE, the sorting is applied in a decreasing fashion.
+}
+}
+\value{
+data.frame including the vector provided as argument in the original order ("value") and the grouping vector ("rank"). If labels are provided as an argument, group labels are also included in the data.frame ("labels"). 
+}
+\references{
+http://www.biotechworld.it/bioinf/2016/07/11/tcga-data-via-tcgaretriever/
+}
+\author{
+Damiano Fantini
+}
+\examples{
+exprs_geneX <- c(19.1,18.4,22.4,15.5,20.2,17.4,9.4,12.4,31.2,33.2,18.4,22.1)
+groups_num <- 3
+groups_labels <- c("high", "med", "low")
+make_groups(exprs_geneX, groups_num, groups_labels, desc = TRUE)
+}

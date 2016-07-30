@@ -5,6 +5,7 @@ function(rnaseq_df, smplcov = 0.95, gncov = 0.45, low_val_thr = 0.45) {
     sum(full_matrix[,j] == "NaN")/nrow(full_matrix) > smplcov
   }))
   full_matrix <- full_matrix[,cols_to_keep]
+  #
   # remove non-mapped genes
   rows_to_keep <- !sapply(1:nrow(full_matrix), (function(j){
     my_ratio <- sum(full_matrix[j,3:ncol(full_matrix)] == "NaN")/(ncol(full_matrix)-2) > gncov
