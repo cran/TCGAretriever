@@ -1,20 +1,21 @@
 Package: TCGAretriever
 Type: Package
-Title: Retrieve Genomic and Clinical Data from TCGA
-Version: 1.5
-Date: 2019-12-17
+Title: Retrieve Genomic and Clinical Data from CBioPortal Including
+        TCGA Data
+Version: 1.7
+Date: 2023-07-08
 Author: Damiano Fantini
 Maintainer: Damiano Fantini <damiano.fantini@gmail.com>
-Description: The Cancer Genome Atlas (TCGA) is a program aimed at improving our understanding of Cancer Biology. Several TCGA Datasets are available online. 'TCGAretriever' helps accessing and downloading TCGA data hosted on 'cBioPortal' via its Web Interface (see <http://www.cbioportal.org/> for more information). 'TCGAretriever' is easy to use (get all the TCGA data you need with a few lines of code), enforces reliable data download (via 'httr'), and is suitable for downloading large volumes of data. 
-URL: https://www.data-pulse.com/dev_site/TCGAretriever/
-Depends: R(>= 3.1)
+Depends: R (>= 3.0.0)
 Imports: httr
-Suggests: graphics, utils, knitr, rmarkdown
+Suggests: stats, utils, knitr, rmarkdown, ggplot2, dplyr, reshape2
 VignetteBuilder: knitr
-Encoding: UTF-8
+Description: The Cancer Genome Atlas (TCGA) is a program aimed at improving our understanding of Cancer Biology. Several TCGA Datasets are available online. 'TCGAretriever' helps accessing and downloading TCGA data hosted on 'cBioPortal' via its Web Interface (see <http://www.cbioportal.org/> for more information).
 License: GPL-2
-RoxygenNote: 6.1.1
+URL: https://www.data-pulse.com/dev_site/TCGAretriever/
+Encoding: UTF-8
+RoxygenNote: 7.2.1
 NeedsCompilation: no
-Packaged: 2019-12-17 19:01:19 UTC; dami
+Packaged: 2023-07-09 21:02:24 UTC; rstudio
 Repository: CRAN
-Date/Publication: 2019-12-17 21:20:02 UTC
+Date/Publication: 2023-07-10 19:30:02 UTC

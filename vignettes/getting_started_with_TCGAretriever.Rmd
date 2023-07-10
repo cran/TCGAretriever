@@ -1,7 +1,7 @@
 ---
 title: "Getting started with TCGAretriever"
-author: "Damiano Fantini"
-date: "December 17, 2019"
+author: "Damiano Fantini, Ph.D."
+date: "July 09, 2022"
 output: html_document
 vignette: >
   %\VignetteIndexEntry{Getting Started with TCGAretriever}
@@ -10,24 +10,39 @@ vignette: >
   % \VignetteDepends{TCGAretriever}
 ---
 
+
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-library(graphics)
-library(utils)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, results = "markup", fig.align = "center", fig.width = 6, fig.height = 5)
+library(TCGAretriever)
+library(reshape2)
+library(ggplot2)
 ```
 
-*TCGAretriever* is an R library aimed at downloading genomic data from cBioPortal (<https://www.cbioportal.org/>), including The Cancer Genome Atlas (TCGA) data (free-tier data). TCGA is a program aimed at improving our understanding of Cancer Biology. Several TCGA Datasets are available online. TCGAretriever helps accessing and downloading TCGA data in R via the cBioPortal API. Features of TCGAretriever are: 
 
-- it is simple and reliable 
+`TCGAretriever` is an R library aimed at downloading genomic data from *cBioPortal* (<https://www.cbioportal.org/>), including *The Cancer Genome Atlas* (TCGA) data (free-tier data). TCGA is a program aimed at improving our understanding of Cancer Biology. Several TCGA Datasets are available online. `TCGAretriever` helps accessing and downloading TCGA data using R via the *cBioPortal API*. Features of `TCGAretriever` are:
+
+- it is simple and reliable
 
 - it is tailored for downloading large volumes of data
 
-Below, you can find a brief tutorial that descibes a simple use case to help ou getting started with *TCGAretriever*.
+This tutorial describes few use cases to help getting started with `TCGAretriever`.
 
-#### Cancer Study IDs
 
-```{r fig.align='center', fig.width=6, fig.height=5}
+
+## Basic Operations
+
+In this section, we provide an overview of the basic operations and commonly used functions.
+
+
+### Cancer Study IDs
+
+Here we retrieve the list of available studies and select all *tcga_pub* entries. Each of the values included in the `cancer_study_id` column is a study identifier and can be passed as `csid` argument to other functions such as `get_genetic_profiles()` or `get_case_lists()`. 
+
+```{r results='markup'}
 library(TCGAretriever)
+library(reshape2)
+library(ggplot2)
 
 # Obtain a list of cancer studies from cBio
 all_studies <- get_cancer_studies()
@@ -37,105 +52,204 @@ keep <- grepl("tcga_pub$", all_studies[,1])
 tcga_studies <- all_studies[keep, ]
 
 # Show results
-head(tcga_studies[, 1:2])
+show_head(tcga_studies, 6, 2)
 ```
 
-```{r fig.align='center', fig.width=6, fig.height=5}
+
+-----
+
+
+### Genetic Profiles (Assays) and Case Lists
+
+It is possible to retrieve genetic profiles and case lists associated to each study of interest. Genetic profiles indicate what kind of data are available for a certain study (*e.g.*, RNA-seq, micro-array, DNA mutation...). Typically, a data type of interest may only be available for a fraction of patients in the cohort. Therefore, it is also important to obtain the corresponding subject with data available for a certain assay. 
+
+
+```{r results='markup'}
 # Define the cancer study id: brca_tcga_pub
 my_csid <- "brca_tcga_pub"
-```
 
-#### Genetic Profiles (Assays) and Case Lists
-
-```{r fig.align='center', fig.width=6, fig.height=5}
 # Obtain genetic profiles
 blca_pro <- get_genetic_profiles(csid = my_csid)
-head(blca_pro[, 1:2], n = 8)
+show_head(blca_pro, 8, 2)
 ```
 
-```{r fig.align='center', fig.width=6, fig.height=5}
+-----
+
+
+```{r results='markup'}
 # Obtain cases 
 blca_cas <- get_case_lists(csid = my_csid)
-head(blca_cas[, 1:2])
+show_head(blca_cas, 8, 2)
 ```
 
-#### Retrieve Genomic Data
+-----
 
-```{r fig.align='center', fig.width=6, fig.height=5}
+
+
+### Retrieve Genomic Data
+
+Once we identified a genetic profile of interest and a case list of interest, we can obtain clinical data and genomic data via the `TCGAretriever::get_clinical_data()` and `TCGAretriever::get_profile_data` functions respectively.   
+
+
+```{r}
 # Define a set of genes of interest
-q_genes <- c("TP53", "MDM2", "E2F1", "EZH2")
+q_genes <- c("TP53", "CLDN7", "E2F1", "EZH2")
 q_cases <- "brca_tcga_pub_complete"
 rna_prf <- "brca_tcga_pub_mrna"
 mut_prf <- "brca_tcga_pub_mutations"
 
+# Download Clinical Data
+brca_cli <- get_clinical_data(case_id = q_cases)
+
 # Download RNA
-brca_RNA <- TCGAretriever::get_profile_data(case_id = q_cases, gprofile_id = rna_prf, glist = q_genes)
+brca_RNA <- get_profile_data(case_id = q_cases, 
+                             gprofile_id = rna_prf, 
+                             glist = q_genes, 
+                             force_numeric = TRUE)
 ```
 
-**NOTE**: the resuting data.frame includes ENTREZ_GENE_IDs and OFFICIAL_SMBOLs as first and second column.
+- **NOTE 1:** *the resulting data.frame includes ENTREZ_GENE_IDs and OFFICIAL_SMBOLs as first and second column.*
 
-```{r fig.align='center', fig.width=6, fig.height=5}
-head(brca_RNA[, 1:5])
+- **NOTE 2:** *expression data can be retrieved as numeric by setting the `force_numeric` argument to TRUE.*
+
+- **NOTE 3:** *up to n=500 genes can be queried via the `get_profile_data()` function.*
+
+-----
+
+```{r results='markup'}
+# Show results
+show_head(brca_RNA, 4, 4)
 ```
 
-```{r fig.align='center', fig.width=6, fig.height=5}
+
+```{r}
 # Set SYMBOLs as rownames
 # Note that you may prefer to use the tibble package for this
 rownames(brca_RNA) <- brca_RNA$COMMON
 brca_RNA <- brca_RNA[, -c(1,2)]
 
+# Round numeric vals to 3 decimals
+for (i in 1:ncol(brca_RNA)) {
+  brca_RNA[, i] <- round(brca_RNA[, i], digits = 3)
+}
+
 # Download mutations (simple)
-brca_MUT <- TCGAretriever::get_profile_data(case_id = q_cases, gprofile_id = mut_prf, glist = q_genes)
+brca_MUT <- get_profile_data(case_id = q_cases, 
+                             gprofile_id = mut_prf, 
+                             glist = q_genes)
+
 rownames(brca_MUT) <- brca_MUT$COMMON
 brca_MUT <- brca_MUT[, -c(1,2)]
 
 # Show results
-brca_RNA[,1:6]
-brca_MUT[,1:6]
+show_head(brca_RNA, 4, 4)
 ```
 
-**NOTE**: when using the same `case_list_id` to retrieve different types of data (genetic profiles) results have consistent structure. In other words, data.frames include info for the same list of cases (and hence, the resulting data.frames have the same number of columns, and identical column names).  
+```{r}
+show_head(brca_MUT, 4, 4)
+```
 
-```{r fig.align='center', fig.width=6, fig.height=5}
+
+**NOTE:** *when using the same case_list_id to retrieve different types of data (genetic profiles) results have consistent structure. In other words, data.frames include info for the same list of cases (and hence, the resulting data.frames have the same number of columns, and identical column names).*
+
+
+```{r}
 # Note that the columns (cases) are identical 
 # and have the same order in both data.frames
 sum(colnames(brca_MUT) != colnames(brca_RNA))
 ```
 
-#### Examples and visualizations
 
-**Relationship between E2F1 and EZH2 in BRCA**
 
-```{r fig.align='center', fig.width=5.5, fig.height=5.8}
+
+-----
+
+
+### Retrieve Large Data
+
+It is possible to download large genomic data (information for a large number of genes) using the `fetch_all_tcgadata()` function. This function takes the same arguments as the `get_profile_data()` function. If the number of query genes is bigger than n=500, the job is automatically split into multiple batches. Results are automatically aggregated before being returned. If mutation data are being queried, results can be requested in two alternate formats: *1)* matrix format; *2)* extended (molten) format. The `mutations` argument is used to control the format. 
+
+
+
+
+-----
+-----
+
+## Examples and visualizations
+
+In this section, we discuss a simple use case where we used `TCGAretriever` to study the relationship between gene expression and mutation status of some genes of interest in breast cancer tumors.
+
+### Relationship between E2F1 and EZH2 in BRCA
+
+We use the data retrieved before to analyze the relationship between E2F1 and EZH2 expression in TCGA breast cancer samples. 
+
+
+```{r fig.width=5, fig.height=5}
+# Visualize the correlation between EZH2 and E2F1
+df <- data.frame(sample_id = colnames(brca_RNA), 
+                 EZH2 = as.numeric(brca_RNA['EZH2', ]), 
+                 E2F1 = as.numeric(brca_RNA['E2F1', ]), 
+                 stringsAsFactors = FALSE)
+
+ggplot(df, aes(x = EZH2, y = E2F1)) +
+  geom_point(color = 'gray60', size = 0.75) +
+  theme_bw() +
+  geom_smooth(method = 'lm', color = 'red2', 
+              size=0.3, fill = 'gray85') +
+  ggtitle('E2F1-EZH2 correlation in BRCA') + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+**Scatterplot** - *showing E2F1 RNA expression with respect to EZH2 RNA expression across TCGA breast cancer samples*. 
+
+
+-----
+
+
+### Relationship between CLDN7 and TP53 with respect to TP53 mutation status in BRCA
+
+We use the data retrieved before to analyze the relationship between CLDN7 and TP53 expression with respect to the TP53 WT status in TCGA breast cancer samples. 
+
+```{r fig.width=9, fig.height=5}
 # Coerce to data.frame with numeric features 
-df <- data.frame(t(brca_RNA), stringsAsFactors = FALSE)
-for(i in 1:ncol(df)) { df[, i] <- as.numeric(df[, i])}
+xpr_df <- data.frame(sample_id = colnames(brca_RNA), 
+                     CLDN7 = as.numeric(brca_RNA['CLDN7', ]),
+                     TP53 = as.numeric(brca_RNA['TP53', ]),
+                     stringsAsFactors = FALSE)
+
+mut_df <- data.frame(
+  sample_id = colnames(brca_RNA), 
+  TP53.status = as.factor(ifelse(brca_MUT["TP53",] == "NaN", "WT", "MUT")),
+  stringsAsFactors = FALSE)
+
+df <- dplyr::inner_join(xpr_df, mut_df, by='sample_id')
 
 # Visualize the correlation between EZH2 and E2F1
-with(df, 
-     plot(E2F1, EZH2, 
-          pch = 19, cex = 0.5, main = "E2F1-EZH2 correlation in BRCA"))
+ggplot(df, aes(x = TP53, y = CLDN7)) +
+  geom_point(color = 'gray60', size = 0.75) +
+  facet_grid(cols = vars(TP53.status)) +
+  theme_bw() +
+  geom_smooth(mapping = aes(color = TP53.status), 
+              method = 'lm', size=0.3, fill = 'gray85') +
+  ggtitle('E2F1-EZH2 correlation in BRCA') + 
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
-**Relationship between MDM2 and P53, by P53 mutation status in BRCA** 
+**Scatterplot** - *showing CLDN7 RNA expression with respect to TP53 RNA expression across TCGA breast cancer samples. Samples with wild type (left) and mutant (right) TP53 status are shown in the two panels*. 
 
-```{r fig.align='center', fig.width=10, fig.height=5}
-# Coerce to data.frame with numeric features 
-df <- data.frame(t(brca_RNA), stringsAsFactors = FALSE)
-for(i in 1:ncol(df)) { df[, i] <- as.numeric(df[, i])}
-df$TP53.status <- as.factor(ifelse(brca_MUT["TP53",] == "NaN", "WT", "MUT"))
 
-# Split data based on TP53.status 
-lst <- split(df, f = df$TP53.status)
 
-# Visualize the correlation between MDM2 and TP53 by P53 mutation status
-par(mfrow = c(1, 2))
-for(x in names(lst)) {
-  with(lst[[x]], 
-       plot(TP53, MDM2, 
-            pch = 19, cex = 0.5, 
-            xlim = c(-2.6, 2.2), ylim = c(-1.6, 3.6),
-            main = paste0("MDM2-vs-P53 in ", x , " P53 tumors")))
-}
+-----
+-----
+
+
+# SessionInfo
+
+```{r message = FALSE, warning = FALSE, eval=TRUE}
+sessionInfo()
 ```
+
+-----
+
+Success! `TCGAretriever` vignette, version 2023-Jul-09, by *D Fantini*. 
 
